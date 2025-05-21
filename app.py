@@ -8,7 +8,7 @@ load_dotenv()
 
 # Create the main Flask app
 app = Flask(__name__)
-CORS(app)
+CORS(app, resources={r"/*": {"origins": ["https://health-sphere-frontend.vercel.app"]}})
 
 # Import routes from scripts
 from scripts import chatbot, disaesePrediction, fitness, insurance, pillRemainder, report, pillIdentifier
