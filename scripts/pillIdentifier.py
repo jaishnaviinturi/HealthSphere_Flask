@@ -3,7 +3,6 @@ from google.generativeai import GenerativeModel, configure
 import os
 import base64
 from werkzeug.utils import secure_filename
-import magic  # For reliable MIME type detection
 
 # Initialize Blueprint
 pill_identifier = Blueprint('pill_identifier', __name__)
@@ -38,9 +37,8 @@ def analyze_image():
             return jsonify({'error': 'File size exceeds 10MB limit'}), 400
         file.seek(0)  # Reset file pointer
 
-        # Validate MIME type
-        mime_type = magic.from_buffer(file.read(1024), mime=True)
-        file.seek(0)  # Reset file pointer after MIME check
+        # Validate MIME type using Flask's mimetype
+        mime_type = file.mimetype
         if mime_type not in ALLOWED_MIME_TYPES:
             return jsonify({'error': f'Unsupported file type. Only {", ".join(ALLOWED_MIME_TYPES)} are allowed'}), 400
 
@@ -62,7 +60,7 @@ def analyze_image():
         # Generate content
         result = model.generate_content([
             {
-                'inline_data': {  # Use 'inline_data' (corrected from 'inlineData')
+                'inline_data': {
                     'mime_type': mime_type,
                     'data': base64_content
                 }
@@ -92,7 +90,7 @@ def search_pill():
         if not search_text or not search_text.strip():
             return jsonify({'error': 'No search text provided'}), 400
 
-        # Sanitize input (basic example)
+        # Sanitize input
         search_text = search_text.strip()
 
         # Initialize the model
